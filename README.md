@@ -6,13 +6,13 @@ A simple pool system for Unity
 To use the pool system in your scripts just import Platinio.
 
 ```cs
-// Using Platinio;
+Using Platinio;
 ```
 
 #Instantiate Objects 
 
 ```cs
-// PooolManager.instance.Create(prefab , position , rotation);
+PooolManager.instance.Create(prefab , position , rotation);
 ```
 
 #Create a Pool
@@ -21,4 +21,4 @@ Add PoolManager.cs to a empty object and just click on create a pool, set the po
 click on the minus sign to delete it.
 
 #Note
-Remenber to use OnDisable method, for reset the values of your objects. 
+Remenber to use OnDisable method, to reset the values of your objects. 
