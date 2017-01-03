@@ -59,13 +59,13 @@ namespace Platinio
 		/// <param name="poolIndex">The index of the pool</param>
 		public GameObject CreateNewPoolPrefab(int poolIndex)
 		{
-			poolsHolder [poolIndex].pool.Add (Instantiate (poolsHolder [poolIndex].go, Vector3.zero, Quaternion.identity) as GameObject);
+			poolsHolder [poolIndex].unactive.Add (Instantiate (poolsHolder [poolIndex].go, Vector3.zero, Quaternion.identity) as GameObject);
 
-			int index = poolsHolder [poolIndex].pool.Count - 1;
-			poolsHolder [poolIndex].pool[index].SetActive (false);
-			poolsHolder [poolIndex].pool[index].transform.parent = transform;
+			int index = poolsHolder [poolIndex].unactive.Count - 1;
+			poolsHolder [poolIndex].unactive[index].SetActive (false);
+			poolsHolder [poolIndex].unactive[index].transform.parent = transform;
 
-			return poolsHolder [poolIndex].pool[index];
+			return poolsHolder [poolIndex].unactive[index];
 		}
 
 		/// <summary>
@@ -77,6 +77,8 @@ namespace Platinio
 		/// <param name="rot">Rotation of the object</param>
 		public GameObject Create(GameObject obj , Vector3 pos , Quaternion rot)
 		{
+			GameObject go;
+
 			//start finding a unactived object
 			for(int n = 0 ; n < poolsHolder.Count ; n++)
 			{
@@ -84,25 +86,39 @@ namespace Platinio
 				if(poolsHolder[n].go == obj)
 				{
 					//find a unactived object
-					for(int i = 0 ; i < poolsHolder[n].pool.Count ; i++)
+					Debug.Log(poolsHolder[n].unactive.Count);
+					if(poolsHolder[n].unactive.Count > 0)
 					{
-						//if the objetc is unactived
-						if(!poolsHolder[n].pool[i].activeInHierarchy)
-						{
-							//intialize object
-							poolsHolder [n].pool [i].SetActive (true);
-							poolsHolder [n].pool [i].transform.position = pos;
-							poolsHolder [n].pool [i].transform.rotation = rot;
-							return poolsHolder [n].pool [i]; //return gameObject
-						}
+						//get object
+						int lastIndex = poolsHolder [n].unactive.Count - 1;
+						go = poolsHolder [n].unactive [lastIndex];
+
+						//intialize object
+						go.SetActive (true);
+						go.transform.position = pos;
+						go.transform.rotation = rot;
+
+						//move object
+						poolsHolder [n].active.Add (go);
+						poolsHolder [n].unactive.Remove (go);
+
+						return go; //return gameObject
 					}
 
+
+
 					//if we dont have any unactived object in the pool
-					GameObject newObject = CreateNewPoolPrefab (n);
-					newObject.SetActive (true);
-					newObject.transform.position = pos;
-					newObject.transform.rotation = rot;
-					return newObject; //return gameObject
+					//initializa object
+					go = CreateNewPoolPrefab (n);
+					go.SetActive (true);
+					go.transform.position = pos;
+					go.transform.rotation = rot;
+
+					//move object
+					poolsHolder [n].active.Add (go);
+					poolsHolder [n].unactive.Remove (go);
+
+					return go; //return gameObject
 
 				}
 			}
@@ -137,11 +153,27 @@ namespace Platinio
 		/// <param name="go">The GameObjec to remove</param>
 		public void Remove(GameObject go)
 		{
+
+			//reset object
 			go.SetActive (false);
 			go.transform.position = Vector3.zero;
 
 			if (go.transform.parent != transform)
 				go.transform.parent = transform;
+
+			//move object
+			for(int n = 0 ; n < poolsHolder.Count ; n++)
+			{
+
+				if(poolsHolder[n].active.Contains(go))
+				{
+					poolsHolder [n].active.Remove (go);
+					poolsHolder [n].unactive.Add (go);
+
+					return;
+				}
+			}
+
 		}
 	
 	}
@@ -150,7 +182,8 @@ namespace Platinio
 	public class PoolObject
 	{
 		public GameObject go; //the original game object
-		public List<GameObject> pool; //the pool of objects
+		public List<GameObject> active; //the pool of objects
+		public List<GameObject> unactive;
 		public int poolSize; //the pool size
 
 	}
