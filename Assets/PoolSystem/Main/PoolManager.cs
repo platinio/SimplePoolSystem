@@ -13,34 +13,44 @@ namespace Platinio.PoolSystem
 	public class PoolManager : Singleton<PoolManager>
 	{
 		#region PUBLIC
-		 public List<Pool> 	pools					= new List<Pool>();
+		[HideInInspector] public List<Pool> 	pools					= new List<Pool>();
 		[HideInInspector] public int 			defaultInitialPoolSize 	= 10;
-		[HideInInspector] public int 			defaultMaxPoolSize		= 20;
-		[HideInInspector] public int			idCounter				= 0;
+		[HideInInspector] public int 			defaultMaxPoolSize		= 20;		
 		#endregion
 
+        private List<DelayUnspawn> m_delayUnspawnRequest = new List<DelayUnspawn>();
 
-		void Awake()
-		{
-			//set all the delegates
-            /*
-			for(int n = 0 ; n < pools.Count ; n++)
-			{
-				for(int  j = 0 ; j < pools[n].inactiveList.Count ; j++)
-				{
-					pools[n].inactiveList[j].SetDelegates();
-				}
-			}
-            */
+		private void Awake()
+		{            
+            Platinio.SetPoolLinks();
 		}
 
-		#region PUBLIC_METHODS
+        private void LateUpdate()
+        {
+            for (int n = 0 ; n < m_delayUnspawnRequest.Count ; n++)
+            {
+                m_delayUnspawnRequest[n].time -= Time.deltaTime;
+
+                if (m_delayUnspawnRequest[n].time <= 0.0f)
+                {
+                    m_delayUnspawnRequest[n].go.Unspawn();
+                    m_delayUnspawnRequest.RemoveAt(n);
+                }
+            }
+        }
+
+        #region PUBLIC_METHODS
+
+        public void AddDelayUnspawn(GameObject go , float t)
+        {
+            m_delayUnspawnRequest.Add( new DelayUnspawn() { go = go, time = t } );
+        }
+
 		/// <summary>
 		/// Called by the inspector to create the pool before running the game this make loading faster
 		/// </summary>
 		public void PreSpawnObjects ()
 		{
-			idCounter = 0;
 
 			//this piece of code looks strange but for some strange reason is neede
 			int childCount = transform.childCount;
@@ -60,7 +70,7 @@ namespace Platinio.PoolSystem
 					GameObject go = new GameObject( pools[n].prefab.name );
                     go.transform.parent = transform;
 
-					pools[n].Initialize(go.transform , idCounter++);
+					pools[n].Initialize(go.transform);
                 }
             }
 
@@ -80,13 +90,17 @@ namespace Platinio.PoolSystem
 			p.prefab 		= prefab;
 			p.maxSize 		= maxSize < 1 ? defaultMaxPoolSize : maxSize;
 			p.initialSize 	= initialSize < 1 ? defaultInitialPoolSize : initialSize;
+            p.parent        = transform;
 
 			GameObject go 		= new GameObject( p.prefab.name );
 			go.transform.parent = transform;
-			p.Initialize( go.transform , idCounter++);
+			p.Initialize( go.transform);
 
 			//add to the pool
 			pools.Add( p );
+
+            //set the link connection
+            Platinio.PoolLinks[prefab] = p;
 
 			return p;
 		}
@@ -94,5 +108,11 @@ namespace Platinio.PoolSystem
 
 
 	}
+
+    public class DelayUnspawn
+    {
+        public GameObject go;
+        public float time;
+    }
 }
 

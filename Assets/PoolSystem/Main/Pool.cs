@@ -1,11 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine.Events;
-using UnityEditor.Events;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.Events;
 #endif
 
 using UnityEngine;
@@ -21,20 +21,19 @@ namespace Platinio.PoolSystem
         public int 					maxSize 		= 10;
 		public List<PoolObject>		activeList		= null;
 		public List<PoolObject>		inactiveList	= null;
-		public Transform			parent			= null;
-		public int 					id				= -1;
+		public Transform			parent			= null;		
 		#endregion
 
 
 
-		public void Initialize(Transform t , int id)
+		public void Initialize(Transform t)
 		{
 			activeList 		= new List<PoolObject>();
 			inactiveList 	= new List<PoolObject>();
 
 			//initialize
 			parent 	= t;
-			this.id = id;
+			
 
 			//create initial PoolObjects
 			for(int n = 0 ; n < initialSize ; n++)
@@ -71,10 +70,8 @@ namespace Platinio.PoolSystem
 			PoolObject obj = null;
 
 			if( inactiveList.Count == 0 )
-			{
-				
+			{				
 				obj =  new PoolObject( (GameObject) MonoBehaviour.Instantiate( prefab, pos, rot ) );	
-				obj.SetDelegates();
 			}
 
 			else
@@ -91,46 +88,34 @@ namespace Platinio.PoolSystem
 
 			activeList.Add(obj);
 
-			if(obj.OnSpawn != null)
+
+            if (obj.OnSpawn != null)
                 obj.OnSpawn.Invoke();
             //obj.OnSpawn();
-            
-				
 
-			//if we dont have more object in the pool create a new one
-			if( inactiveList.Count == 0 )
+
+            //if we dont have more object in the pool create a new one
+            if ( inactiveList.Count == 0)
 			{
-				PoolObject newObj =  new PoolObject( (GameObject) MonoBehaviour.Instantiate( prefab , parent ) );	
-				newObj.SetDelegates();
+                
+				PoolObject newObj =  new PoolObject( (GameObject) MonoBehaviour.Instantiate( prefab , this.parent ) );	
 				newObj.go.SetActive( false );
 				inactiveList.Add( newObj );
 			}
 
-			Transform t = obj.go.transform;
-
-			//try to unspawn all the childrens
-
-			//Debug.Log("obj " + t.gameObject.name + " has " + t.childCount + " childs");
-
-			List<Transform> childs = new List<Transform>();
-
-			for(int j = 0 ; j < t.childCount ; j++)
-			{
-				childs.Add( t.GetChild(j) );
-			}
-
-			for(int n = 0 ; n < childs.Count ; n++)
-			{
-				childs[n].gameObject.Unspawn();
-			}
-
-
+			
 			return obj.go;
 				
 		}
 
-		public void Unspawn(GameObject obj)
+		public void Unspawn(GameObject obj , float t = 0.0f)
 		{
+            if (t > 0.0f)
+            {
+                PoolManager.instance.AddDelayUnspawn( obj , t );
+                return;
+            }
+
 			for(int n = 0 ; n < activeList.Count ; n++)
 			{
 				//is the same obj?
@@ -189,27 +174,20 @@ namespace Platinio.PoolSystem
 	public class PoolObject
 	{
 		public GameObject 		go			= null;
-		//public MonoBehaviour[] 	scripts		= null;
-
-		public delegate void OnEvent();
-		//public OnEvent OnSpawn;
-		//public OnEvent OnUnspawn;
-
-        public UnityEvent OnSpawn = new UnityEvent();
+		public UnityEvent OnSpawn = new UnityEvent();
         public UnityEvent OnUnspawn = new UnityEvent();
 
 		public PoolObject(GameObject go)
 		{
-			this.go = go;
-            SetDelegates();
+			this.go = go;            
 		}
 
 		//set all the callbacks
-		public void SetDelegates()
+		private void SetDelegates()
 		{            
             MonoBehaviour[] scripts = go.GetComponents<MonoBehaviour>();
             
-            Debug.Log("setting delagates");
+            
 
             for (int n = 0 ; n < scripts.Length ; n++)
 			{
@@ -219,18 +197,35 @@ namespace Platinio.PoolSystem
                 if (method != null)
                 {
                     UnityAction action = (UnityAction)System.Delegate.CreateDelegate(typeof(UnityAction), scripts[n], method);
-                    UnityEventTools.AddPersistentListener(OnSpawn , action);
+
+                    #if UNITY_EDITOR
+                    if(!Application.isPlaying)
+                        UnityEventTools.AddPersistentListener(OnSpawn, action);
+                    else
+                        OnSpawn.AddListener( action );
+                    #else
+                    OnSpawn.AddListener( action );
+                    #endif
+
                 }
 
-                    
-                
+
+
                 method = scripts[n].GetType().GetMethod("OnUnspawn", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
                 if (method != null)
                 {
                     UnityAction action = (UnityAction)System.Delegate.CreateDelegate(typeof(UnityAction), scripts[n], method);
-                    UnityEventTools.AddPersistentListener(OnUnspawn, action);
-                }                
+
+                    #if UNITY_EDITOR
+                    if (!Application.isPlaying)
+                        UnityEventTools.AddPersistentListener(OnUnspawn, action);
+                    else
+                        OnSpawn.AddListener(action);
+                    #else
+                    OnUnspawn.AddListener( action );
+                    #endif
+                }
 
             }
             
