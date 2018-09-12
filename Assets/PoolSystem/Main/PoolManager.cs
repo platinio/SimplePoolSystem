@@ -9,7 +9,9 @@ using UnityEngine;
 
 namespace Platinio.PoolSystem
 {
-	
+	/// <summary>
+    /// Singleton for handling the pool system
+    /// </summary>
 	public class PoolManager : Singleton<PoolManager>
 	{
 		#region PUBLIC
@@ -18,9 +20,10 @@ namespace Platinio.PoolSystem
 		[HideInInspector] public int 			defaultMaxPoolSize		= 20;		
 		#endregion
 
+        //a list to keep track of delay Unspawn
         private List<DelayUnspawn> m_delayUnspawnRequest = new List<DelayUnspawn>();
-
-		private void Awake()
+        #region UNITY_EVENTS
+        private void Awake()
 		{            
             Platinio.SetPoolLinks();
 
@@ -30,6 +33,7 @@ namespace Platinio.PoolSystem
 
         private void LateUpdate()
         {
+            //update delay unspawn request
             for (int n = 0 ; n < m_delayUnspawnRequest.Count ; n++)
             {
                 m_delayUnspawnRequest[n].time -= Time.deltaTime;
@@ -41,6 +45,7 @@ namespace Platinio.PoolSystem
                 }
             }
         }
+        #endregion
 
         #region PUBLIC_METHODS
 
@@ -50,11 +55,10 @@ namespace Platinio.PoolSystem
         }
 
 		/// <summary>
-		/// Called by the inspector to create the pool before running the game this make loading faster
-		/// </summary>
+        /// Called in awake to create the pool initial objects
+        /// </summary>
 		private void PreSpawnObjects ()
 		{
-
 			           
 			//create the pools
 			for(int n = 0 ; n < pools.Count ; n++)

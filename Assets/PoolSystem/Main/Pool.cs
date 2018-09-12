@@ -41,23 +41,7 @@ namespace Platinio.PoolSystem
 
                 GameObject obj = null;
 
-                #if UNITY_EDITOR
-
-                if (Application.isPlaying)
-                {
-                    obj = MonoBehaviour.Instantiate(prefab, parent);
-                }
-                else
-                {
-                    obj = PrefabUtility.InstantiatePrefab( prefab ) as GameObject;
-                    obj.transform.parent = parent;
-                }
-
-                #else
                 obj = MonoBehaviour.Instantiate(prefab, parent);
-                #endif
-
-
                 obj.SetActive( false );
 				inactiveList.Add( new PoolObject( obj ) );		
 			}
@@ -90,8 +74,7 @@ namespace Platinio.PoolSystem
 
 
             if (obj.OnSpawn != null)
-                obj.OnSpawn.Invoke();
-            //obj.OnSpawn();
+                obj.OnSpawn();
 
 
             //if we dont have more object in the pool create a new one
@@ -123,10 +106,8 @@ namespace Platinio.PoolSystem
 				if( obj == activeList[n].go )
 				{
 					if(activeList[n].OnUnspawn != null)
-                        activeList[n].OnUnspawn.Invoke();
-                        //activeList[n].OnUnspawn();
-
-
+                        activeList[n].OnUnspawn();
+                    
 
                     activeList[n].go.transform.parent = parent;
 					activeList[n].go.SetActive(false);
@@ -142,18 +123,13 @@ namespace Platinio.PoolSystem
 					{
 						//Debug.Log("destroying " + obj.name);
 						MonoBehaviour.Destroy( p.go );
-					}
-												
+					}												
 
 					return;
 				}
 			}
 
 			
-			//maybe do you want to remove me?
-			//Debug.Log("destroying " + obj.name);
-			//MonoBehaviour.Destroy( obj );
-
 		}
 
 		
