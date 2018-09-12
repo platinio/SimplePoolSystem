@@ -116,6 +116,7 @@ namespace Platinio.PoolSystem
                 return;
             }
 
+            
 			for(int n = 0 ; n < activeList.Count ; n++)
 			{
 				//is the same obj?
@@ -134,32 +135,21 @@ namespace Platinio.PoolSystem
 					activeList.RemoveAt( n );
 
 					//if the pool exced maxSize lest destroy the object we dont need it
-					//(inactiveList.Count < maxSize)
+					if(inactiveList.Count < maxSize)
 						inactiveList.Add( p );
 
-					//else
-					//{
+					else
+					{
 						//Debug.Log("destroying " + obj.name);
-						//MonoBehaviour.Destroy( p.go );
-					//}
+						MonoBehaviour.Destroy( p.go );
+					}
 												
 
 					return;
 				}
 			}
 
-			Debug.Log("obj " + obj.name + "no unspaned");
-
-			for(int n = 0 ; n < inactiveList.Count ; n++)
-			{
-				//is the same obj?
-				if( obj == inactiveList[n].go )
-				{
-					Debug.Log("callind unspaw on inactive object " + obj.name);
-				}
-			}
-
-
+			
 			//maybe do you want to remove me?
 			//Debug.Log("destroying " + obj.name);
 			//MonoBehaviour.Destroy( obj );
