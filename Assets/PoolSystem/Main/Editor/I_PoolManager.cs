@@ -55,15 +55,7 @@ namespace Platinio.PoolSystem
             if (GUILayout.Button("+" , GUILayout.Width(20) ))
                 _target.pools.Add( new Pool() );
             		
-			if( GUI.changed )
-			{
-				EditorUtility.SetDirty( _target );
-                EditorSceneManager.MarkSceneDirty( EditorSceneManager.GetActiveScene() );
-
-                _target.PreSpawnObjects();
-			}
-
-           
+			           
         }
     }
 

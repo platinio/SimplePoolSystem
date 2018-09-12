@@ -23,6 +23,9 @@ namespace Platinio.PoolSystem
 		private void Awake()
 		{            
             Platinio.SetPoolLinks();
+
+            //initialize pool
+            PreSpawnObjects();
 		}
 
         private void LateUpdate()
@@ -49,19 +52,10 @@ namespace Platinio.PoolSystem
 		/// <summary>
 		/// Called by the inspector to create the pool before running the game this make loading faster
 		/// </summary>
-		public void PreSpawnObjects ()
+		private void PreSpawnObjects ()
 		{
 
-			//this piece of code looks strange but for some strange reason is neede
-			int childCount = transform.childCount;
-
-			for(int n = 0 ; n < childCount ; n++ )
-			{
-				for(int j = 0 ; j < transform.childCount ; j++)
-					DestroyImmediate( transform.GetChild( j ).gameObject );
-			}
-
-           
+			           
 			//create the pools
 			for(int n = 0 ; n < pools.Count ; n++)
 			{

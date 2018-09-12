@@ -179,14 +179,16 @@ namespace Platinio.PoolSystem
 
 		public PoolObject(GameObject go)
 		{
-			this.go = go;            
+			this.go = go;
+            SetDelegates();
 		}
 
 		//set all the callbacks
 		private void SetDelegates()
-		{            
-            MonoBehaviour[] scripts = go.GetComponents<MonoBehaviour>();
-            
+		{      
+            Debug.Log("setting delegate");
+
+            MonoBehaviour[] scripts = go.GetComponents<MonoBehaviour>();           
             
 
             for (int n = 0 ; n < scripts.Length ; n++)
@@ -221,7 +223,7 @@ namespace Platinio.PoolSystem
                     if (!Application.isPlaying)
                         UnityEventTools.AddPersistentListener(OnUnspawn, action);
                     else
-                        OnSpawn.AddListener(action);
+                        OnUnspawn.AddListener(action);
                     #else
                     OnUnspawn.AddListener( action );
                     #endif
