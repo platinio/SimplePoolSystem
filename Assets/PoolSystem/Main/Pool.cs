@@ -173,9 +173,11 @@ namespace Platinio.PoolSystem
 	[System.Serializable]
 	public class PoolObject
 	{
-		public GameObject 		go			= null;
-		public UnityEvent OnSpawn = new UnityEvent();
-        public UnityEvent OnUnspawn = new UnityEvent();
+        public delegate void OnAction();
+
+        public GameObject   go			= null;
+		public OnAction     OnSpawn     = null;
+        public OnAction     OnUnspawn   = null;
 
 		public PoolObject(GameObject go)
 		{
@@ -186,7 +188,7 @@ namespace Platinio.PoolSystem
 		//set all the callbacks
 		private void SetDelegates()
 		{      
-            Debug.Log("setting delegate");
+           
 
             MonoBehaviour[] scripts = go.GetComponents<MonoBehaviour>();           
             
@@ -198,35 +200,15 @@ namespace Platinio.PoolSystem
 
                 if (method != null)
                 {
-                    UnityAction action = (UnityAction)System.Delegate.CreateDelegate(typeof(UnityAction), scripts[n], method);
-
-                    #if UNITY_EDITOR
-                    if(!Application.isPlaying)
-                        UnityEventTools.AddPersistentListener(OnSpawn, action);
-                    else
-                        OnSpawn.AddListener( action );
-                    #else
-                    OnSpawn.AddListener( action );
-                    #endif
+                    OnSpawn += (OnAction)System.Delegate.CreateDelegate(typeof(OnAction), scripts[n], method);                   
 
                 }
-
-
 
                 method = scripts[n].GetType().GetMethod("OnUnspawn", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
                 if (method != null)
                 {
-                    UnityAction action = (UnityAction)System.Delegate.CreateDelegate(typeof(UnityAction), scripts[n], method);
-
-                    #if UNITY_EDITOR
-                    if (!Application.isPlaying)
-                        UnityEventTools.AddPersistentListener(OnUnspawn, action);
-                    else
-                        OnUnspawn.AddListener(action);
-                    #else
-                    OnUnspawn.AddListener( action );
-                    #endif
+                    OnUnspawn = (OnAction)System.Delegate.CreateDelegate(typeof(OnAction), scripts[n], method);
                 }
 
             }
