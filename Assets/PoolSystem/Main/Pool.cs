@@ -72,9 +72,7 @@ namespace Platinio.PoolSystem
 
 			activeList.Add(obj);
 
-
-            if (obj.OnSpawn != null)
-                obj.OnSpawn();
+            obj.InvokeOnSpawnCallback();
 
 
             //if we dont have more object in the pool create a new one
@@ -105,8 +103,7 @@ namespace Platinio.PoolSystem
 				//is the same obj?
 				if( obj == activeList[n].go )
 				{
-					if(activeList[n].OnUnspawn != null)
-                        activeList[n].OnUnspawn();
+					activeList[n].InvokeOnUnSpawnCallback();
                     
 
                     activeList[n].go.transform.parent = parent;
@@ -136,51 +133,5 @@ namespace Platinio.PoolSystem
 
 	}
 
-	[System.Serializable]
-	public class PoolObject
-	{
-        public delegate void OnAction();
-
-        public GameObject   go			= null;
-		public OnAction     OnSpawn     = null;
-        public OnAction     OnUnspawn   = null;
-
-		public PoolObject(GameObject go)
-		{
-			this.go = go;
-            SetDelegates();
-		}
-
-		//set all the callbacks
-		private void SetDelegates()
-		{      
-           
-
-            MonoBehaviour[] scripts = go.GetComponents<MonoBehaviour>();           
-            
-
-            for (int n = 0 ; n < scripts.Length ; n++)
-			{
-                
-                MethodInfo method = scripts[n].GetType().GetMethod("OnSpawn", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-
-                if (method != null)
-                {
-                    OnSpawn += (OnAction)System.Delegate.CreateDelegate(typeof(OnAction), scripts[n], method);                   
-
-                }
-
-                method = scripts[n].GetType().GetMethod("OnUnspawn", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-
-                if (method != null)
-                {
-                    OnUnspawn = (OnAction)System.Delegate.CreateDelegate(typeof(OnAction), scripts[n], method);
-                }
-
-            }
-            
-
-        }
-	}
 
 }

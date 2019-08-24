@@ -13,24 +13,18 @@ namespace Platinio.PoolSystem
         //the links betwen pools
         public static Dictionary<GameObject , Pool> PoolLinks = null;
 
-        #region SPAWN_COMPONENT
+        #region SPAWN
         public static T Spawn<T>(this GameObject go) where T : Component
-        {
-            
-            // Clone this prefabs's GameObject            
+        {                   
             GameObject clone = Spawn(go, Vector3.zero, Quaternion.identity, null);
 
-            // Return the same component from the clone
             return clone != null ? clone.GetComponent<T>() : null;
         }
 
         public static T Spawn<T>(this GameObject go , Vector3 position) where T : Component
-        {
-           
-            // Clone this prefabs's GameObject            
+        {                   
             GameObject clone = Spawn(go, position, Quaternion.identity, null);
 
-            // Return the same component from the clone
             return clone != null ? clone.GetComponent<T>() : null;
         }
 
@@ -47,7 +41,7 @@ namespace Platinio.PoolSystem
 
         #region UNSPAWN
         /// <summary>
-        /// Unspawn object in from current scene , slow please dont use id instead
+        /// Unspawn object from current scene , slow please dont use id instead
         /// </summary>
         public static void Unspawn( this GameObject go )
 		{
