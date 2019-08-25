@@ -1,24 +1,145 @@
-# SimplePoolSystem
-A simple pool system for Unity
+SimplePoolSystem
+==============
+Copyright (c) 2017 -2019 Unity Project by James Roman
 
 
-#getting started
-To use the pool system in your scripts just import Platinio.
+What is Object Pooling?
+==============
+In many games is normal, that we are constantly creating and destroying objects, (such as bullets or enemies), using Instantiate and Destroy respectively, but really these objects that we destroy, still occupy a space in our memory, so destroy many objects can make a game quite slow, or even unplayable on platforms with fewer resources.
 
-```cs
-Using Platinio;
+That is why a well-known technique called object polling is used, which simply consists in reducing the amount of objects that are created in our games, basically the objects are not destroyed, we just deactivate and activate then for convenience.
+
+Getting started
+==============
+Just download and import [this](https://github.com/platinio/PlatinioTween/releases/download/1.2.1/PlatinioTween.1.2.1.unitypackage) 
+
+use the Platinio.PoolSystem name space.
+```c#
+using Platinio.PoolSystem;
+```
+and you are ready to go.
+
+Creating a Pool using the Inspector
+==============
+
+Just use the script PoolManager.cs and create as many pools as you need.
+
+![](createpoolinspector.gif)
+
+Creating a Pool from Code
+==============
+For sure there will be moments, when you need to create a pool from code.
+
+```c#
+PoolManager.instance.CreatePool(poolPrefab , maxPoolSize , initialPoolSize);
 ```
 
-#Instantiate Objects 
+Instantianting (Spawning)
+==============
 
-```cs
-PooolManager.instance.Create(prefab , position , rotation);
+Now instead of Instantiating objects we will be spawning objects, but dont worry works very similar to Instantiate.
+
+```c#
+using UnityEngine;
+using Platinio.PoolSystem;
+
+public class SpawningTest : MonoBehaviour
+{
+    public GameObject prefab = null;
+
+    private void Awake()
+    {
+        //Spawn a our prefab in Vector3.zero position
+        prefab.Spawn(Vector3.zero);
+    }
+}
 ```
 
-#Create a Pool
+As you can see now we need to use our prefab in order to spawn (or Instantiate) objects.
 
-Add PoolManager.cs to a empty object and just click on create a pool, set the pool size and pool prefab and you can start using it, 
-click on the minus sign to delete it.
+Destroying (Unspawning)
+==============
 
-#Note
-Remenber to use OnDisable method, to reset the values of your objects. 
+Now instead of caling Destroy we will be using Unspawn.
+
+```c#
+using UnityEngine;
+using Platinio.PoolSystem;
+
+public class UnspawningTest : MonoBehaviour
+{
+    public GameObject prefab = null;
+
+    private void Awake()
+    {
+        //Create a prefab
+        GameObject clone = prefab.Spawn(Vector3.zero);
+        //Destroy or Unspawn the prefab
+        clone.Unspawn();
+    }
+}
+
+```
+
+OnSpawn and OnUnspawn
+==============
+
+As you know using pooling we are no Instantiating or Destroying (or we try), so we use OnSpawn and OnUnspawn as callbacks.
+
+```c#
+using UnityEngine;
+
+public class EventTest : MonoBehaviour
+{
+    private void OnUnspawn()
+    {
+        Debug.Log( "Called when this GameObject is Unspawned");
+    }
+
+    private void OnSpawn()
+    {
+        Debug.Log( "Called when this GameObject is Spawned" );
+    }
+}
+```
+
+Remenber!
+==============
+It is important that you remember that we are recycling objects, that means what if you use Spawn to create an enemy with 100 hit points, and use Unspawn to destroy it when its hit points reaches 0, when this object is reused, it will appear having 0 of hit points aigan, because it is the same old object.
+
+So what you need to do in order to avoid this, is to use the OnSpawn callback to reset all object properties (such as hp and ammo).
+
+```c#
+using UnityEngine;
+using Platinio.PoolSystem;
+
+public class Enemy : MonoBehaviour
+{
+    public float maxHP = 100.0f;
+    public int maxAmmo = 30;
+
+    private float currentHP;
+    private int currenAmmo;
+
+    private void OnSpawn()
+    {
+        //reset object properties
+        currentHP = maxHP;
+        currenAmmo = maxAmmo;
+    }
+
+    public void DoDamage(float dmg)
+    {
+        currentHP -= dmg;
+
+        if (currentHP <= 0.0f)
+        {
+            currentHP = 0.0f;
+            gameObject.Unspawn();
+        }
+    }
+}
+
+```
+
+
