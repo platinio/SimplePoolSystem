@@ -11,7 +11,7 @@ That is why a well-known technique called object polling is used, which simply c
 
 Getting started
 ==============
-Just download and import [this](https://github.com/platinio/PlatinioTween/releases/download/1.2.1/PlatinioTween.1.2.1.unitypackage) 
+Just download and import [this](https://github.com/platinio/SimplePoolSystem/releases/download/1.0/SimplePoolSystem.1.0f.unitypackage) 
 
 use the Platinio.PoolSystem name space.
 ```c#
