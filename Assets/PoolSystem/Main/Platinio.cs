@@ -55,10 +55,13 @@ namespace Platinio.PoolSystem
             {
                 PoolLinks.Remove( go );
                 RemoveFromPool( pool, go );
-            }
 
-            //the object does not exist in our pools let's destroy it
-            MonoBehaviour.Destroy( go );
+            }
+            else
+            {
+                //the object does not exist in our pools let's destroy it
+                MonoBehaviour.Destroy( go );
+            }            
 
         }
 
