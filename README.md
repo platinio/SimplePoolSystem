@@ -49,7 +49,7 @@ public class SpawningTest : MonoBehaviour
 
     private void Awake()
     {
-        //Spawn a our prefab in Vector3.zero position
+        //Spawn our prefab in Vector3.zero position
         prefab.Spawn(Vector3.zero);
     }
 }
