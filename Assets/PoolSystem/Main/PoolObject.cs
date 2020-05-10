@@ -14,12 +14,12 @@ namespace Platinio
 
         public void InvokeOnSpawnCallback()
         {
-            go.SendMessage( "OnSpawn", SendMessageOptions.DontRequireReceiver );
+            go.BroadcastMessage( "OnSpawn", SendMessageOptions.DontRequireReceiver );
         }
 
         public void InvokeOnUnSpawnCallback()
         {
-            go.SendMessage("OnUnspawn" , SendMessageOptions.DontRequireReceiver);
+            go.BroadcastMessage("OnUnspawn" , SendMessageOptions.DontRequireReceiver);
         }
     }
 }
