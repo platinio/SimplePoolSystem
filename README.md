@@ -103,7 +103,7 @@ public class EventTest : MonoBehaviour
 }
 ```
 
-Remenber!
+Remember!
 ==============
 It is important that you remember that we are recycling objects, that means what if you use Spawn to create an enemy with 100 hit points, and use Unspawn to destroy it when his hit points reaches 0, when this object is reused, it will appear having 0 hit points aigan, because it is the same old object.
 
